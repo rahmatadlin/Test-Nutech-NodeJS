@@ -19,11 +19,25 @@ const swaggerOptions = {
     info: {
       title: 'API Documentation',
       version: '1.0.0',
-      description: 'API untuk Registrasi, Login, Cek Saldo, Top Up, dan Transaksi'
+      description: 'API untuk Registrasi, Login, Cek Saldo, Top Up, dan Transaksi',
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT}`,
+        url: `http://localhost:${process.env.PORT}`, // Server URL diambil dari environment variable
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT', // Menunjukkan bahwa ini adalah token JWT
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [], // Menetapkan bahwa Bearer Token digunakan secara default untuk semua endpoint
       },
     ],
   },
