@@ -1,32 +1,55 @@
 const express = require('express');
 const { checkBalance } = require('../controllers/balanceController');
-const auth = require('../middlewares/authentication.js');
 const router = express.Router();
 
 /**
  * @swagger
- * /api/balance:
+ * /balance:
  *   get:
- *     summary: Cek saldo pengguna
- *     description: Mengambil saldo pengguna yang sedang login.
+ *     tags:
+ *       - 3. Module Transaction
+ *     description: Digunakan untuk mendapatkan informasi balance / saldo terakhir dari User
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: []  # Requires JWT Token for Authorization
  *     responses:
  *       200:
- *         description: Saldo berhasil diambil
+ *         description: Get Balance / Saldo Berhasil
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 balance:
- *                   type: number
- *                   format: float
+ *                 status:
+ *                   type: integer
+ *                   example: 0
+ *                 message:
+ *                   type: string
+ *                   example: "Get Balance Berhasil"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     balance:
+ *                       type: number
+ *                       format: float
+ *                       example: 1000000
  *       401:
- *         description: Tidak terautentikasi
- *       500:
- *         description: Server error
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 108
+ *                 message:
+ *                   type: string
+ *                   example: "Token tidak valid atau kadaluwarsa"
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *                   example: null
  */
-router.get('/', auth, checkBalance);
+router.get('/', checkBalance);
 
 module.exports = router;

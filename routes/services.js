@@ -8,7 +8,7 @@ const router = express.Router();
  *   get:
  *     tags:
  *       - 2. Module Information
- *     description: API Services Private (memerlukan Token untuk mengaksesnya) - Digunakan untuk mendapatkan list Service/Layanan PPOB
+ *     description: Digunakan untuk mendapatkan list Service/Layanan PPOB
  *     security:
  *       - bearerAuth: []  # Requires JWT Token for Authorization
  *     responses:
