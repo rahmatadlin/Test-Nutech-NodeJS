@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
+const { swaggerDocs, swaggerUi } = require('./swagger'); // Import Swagger configuration
+const authenticateToken = require('./middlewares/auth'); // Import the authentication middleware
 
 // Load environment variables
 dotenv.config();
@@ -12,43 +12,12 @@ const app = express();
 // Middleware for parsing JSON
 app.use(express.json());
 
-// Swagger setup
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API Documentation',
-      version: '1.0.0',
-      description: 'API untuk Registrasi, Login, Cek Saldo, Top Up, dan Transaksi',
-    },
-    servers: [
-      {
-        url: `http://localhost:${process.env.PORT}`, // Server URL diambil dari environment variable
-      },
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT', // Menunjukkan bahwa ini adalah token JWT
-        },
-      },
-    },
-    security: [
-      {
-        bearerAuth: [], // Menetapkan bahwa Bearer Token digunakan secara default untuk semua endpoint
-      },
-    ],
-  },
-  apis: ['./routes/*.js'], // Swagger akan membaca semua file di folder routes
-};
-
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
+// Serve Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Define routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/', require('./routes/auth'));
+app.use('/profile', authenticateToken, require('./routes/profile')); // Use middleware for profile route
 app.use('/api/balance', require('./routes/balance'));
 app.use('/api/topup', require('./routes/topUp'));
 app.use('/api/transaction', require('./routes/transaction'));
