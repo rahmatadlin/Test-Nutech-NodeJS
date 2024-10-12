@@ -8,7 +8,7 @@ const { getBanners } = require('../controllers/bannerController');
  *   get:
  *     tags:
  *       - 2. Module Information
- *     description: Digunakan untuk mendapatkan list banner publik (tidak memerlukan token untuk mengaksesnya)
+ *     description: Digunakan untuk mendapatkan list banner
  *     responses:
  *       200:
  *         description: Request Successfully
@@ -42,6 +42,15 @@ const { getBanners } = require('../controllers/bannerController');
  *                 - banner_name: "Banner 2"
  *                   banner_image: "https://minio.nutech-integrasi.com/take-home-test/banner/Banner-2.png"
  *                   description: "Lerem Ipsum Dolor sit amet"
+ *                 - banner_name: "Banner 3"
+ *                   banner_image: "https://minio.nutech-integrasi.com/take-home-test/banner/Banner-3.png"
+ *                   description: "Lerem Ipsum Dolor sit amet"
+ *                 - banner_name: "Banner 4"
+ *                   banner_image: "https://minio.nutech-integrasi.com/take-home-test/banner/Banner-4.png"
+ *                   description: "Lerem Ipsum Dolor sit amet"
+ *                 - banner_name: "Banner 5"
+ *                   banner_image: "https://minio.nutech-integrasi.com/take-home-test/banner/Banner-5.png"
+ *                   description: "Lerem Ipsum Dolor sit amet"
  *       401:
  *         description: Unauthorized (If the endpoint was secured)
  *         content:
@@ -61,6 +70,6 @@ const { getBanners } = require('../controllers/bannerController');
  *               message: "Token tidak valid atau kadaluwarsa"
  *               data: null
  */
-router.get('/banner', getBanners);
+router.get('/', getBanners);
 
 module.exports = router;

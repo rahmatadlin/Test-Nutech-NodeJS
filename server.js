@@ -18,9 +18,11 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // Define routes
 app.use('/', require('./routes/auth'));
 app.use('/profile', authenticateToken, require('./routes/profile')); // Use middleware for profile route
-app.use('/api/balance', require('./routes/balance'));
-app.use('/api/topup', require('./routes/topUp'));
-app.use('/api/transaction', require('./routes/transaction'));
+app.use('/banner', require('./routes/banner'));
+app.use('/services', authenticateToken, require('./routes/services')); // Use middleware for profile route
+app.use('/balance', require('./routes/balance'));
+app.use('/topup', require('./routes/topUp'));
+app.use('/transaction', require('./routes/transaction'));
 
 // Start server
 const PORT = process.env.PORT || 3000;

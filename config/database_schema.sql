@@ -10,6 +10,15 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- Timestamp for when the record was last updated
 );
 
+-- Table to store banners
+CREATE TABLE banners (
+  id INT AUTO_INCREMENT PRIMARY KEY,              -- Unique identifier for each banner
+  banner_name VARCHAR(255) NOT NULL,              -- Name of the banner
+  banner_image VARCHAR(255) NOT NULL,             -- URL of the banner image
+  description VARCHAR(255) NOT NULL,              -- Short description of the banner
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp when the record is created
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp when the record is last updated
+);
 
 
 -- Table to store transactions
