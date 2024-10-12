@@ -1,6 +1,7 @@
 const express = require("express");
-const { profile, updateProfile } = require("../controllers/profileController");
+const { getProfile, updateProfile, uploadProfileImage } = require("../controllers/profileController");
 const router = express.Router();
+const upload = require('../multer/multer'); // Import multer config
 
 /**
  * @swagger
@@ -64,7 +65,7 @@ const router = express.Router();
  */
 
 // Define the route handler (assuming you have a function to handle getting user profile)
-router.get("/", profile);
+router.get("/", getProfile);
 
 /**
  * @swagger
@@ -141,5 +142,96 @@ router.get("/", profile);
 
 // Define the route handler (assuming you have a function to handle profile update)
 router.put("/update", updateProfile);
+
+
+/**
+ * @swagger
+ * /profile/image:
+ *   put:
+ *     tags:
+ *       - 1. Module Membership
+ *     description: Digunakan untuk mengupdate / upload profile image User
+ *     security:
+ *       - bearerAuth: []  # Service ini harus menggunakan Bearer Token JWT untuk mengaksesnya
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Request Successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     first_name:
+ *                       type: string
+ *                     last_name:
+ *                       type: string
+ *                     profile_image:
+ *                       type: string
+ *             example:
+ *               status: 0
+ *               message: "Update Profile Image berhasil"
+ *               data:
+ *                 email: "user@nutech-integrasi.com"
+ *                 first_name: "User Edited"
+ *                 last_name: "Nutech Edited"
+ *                 profile_image: "https://yoururlapi.com/profile-updated.jpeg"
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *             example:
+ *               status: 102
+ *               message: "Format Image tidak sesuai"
+ *               data: null
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   nullable: true
+ *             example:
+ *               status: 108
+ *               message: "Token tidak valid atau kadaluwarsa"
+ *               data: null
+ */
+// Define the route handler
+router.put("/image", upload.single('file'), uploadProfileImage);
 
 module.exports = router;

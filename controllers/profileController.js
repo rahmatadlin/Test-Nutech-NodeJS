@@ -1,14 +1,15 @@
 // controllers/profile.js
 const db = require('../config/db');
+const path = require('path');
 
 // Get user profile
-exports.profile = async (req, res) => {
-  const userId = req.userId; // Get user ID from the middleware
+exports.getProfile = async (req, res) => {
+  const userId = req.userId; // Mendapatkan ID pengguna dari middleware
 
-  // Fetch the user's profile from the database
+  // Mengambil profil pengguna dari database
   const [rows] = await db.query('SELECT email, first_name, last_name, profile_image FROM users WHERE id = ?', [userId]);
 
-  // Check if user exists
+  // Memeriksa apakah pengguna ada
   if (rows.length === 0) {
     return res.status(404).json({
       status: 108,
@@ -19,7 +20,7 @@ exports.profile = async (req, res) => {
 
   const userProfile = rows[0];
 
-  // Send response with user profile data
+  // Mengirim respons dengan data profil pengguna
   res.status(200).json({
     status: 0,
     message: 'Sukses',
@@ -30,30 +31,9 @@ exports.profile = async (req, res) => {
 // Update user profile
 exports.updateProfile = async (req, res) => {
   try {
-    // Ambil token dari header authorization
-    const token = req.headers.authorization?.split(" ")[1];
-    
-    if (!token) {
-      return res.status(401).json({
-        status: 108,
-        message: "Token tidak valid atau kadaluwarsa",
-        data: null,
-      });
-    }
+    const email = req.userEmail; // Mengambil email dari request setelah validasi token di middleware
 
-    // Verifikasi token dan ambil email dari payload JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const email = decoded.email;
-
-    if (!email) {
-      return res.status(401).json({
-        status: 108,
-        message: "Token tidak valid atau kadaluwarsa",
-        data: null,
-      });
-    }
-
-    // Ambil data dari request body
+    // Mengambil data dari request body
     const { first_name, last_name } = req.body;
 
     // Lakukan validasi untuk first_name dan last_name
@@ -90,7 +70,7 @@ exports.updateProfile = async (req, res) => {
       email,
       first_name,
       last_name,
-      profile_image: "https://yoururlapi.com/profile.jpeg",
+      profile_image: "https://yoururlapi.com/profile.jpeg", // URL gambar profil yang dapat disesuaikan
     };
 
     // Respon sukses
@@ -100,19 +80,50 @@ exports.updateProfile = async (req, res) => {
       data: updatedUser,
     });
   } catch (error) {
-    if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        status: 108,
-        message: "Token tidak valid atau kadaluwarsa",
-        data: null,
-      });
-    }
-
-    // Error lainnya
     return res.status(500).json({
       status: 500,
       message: "Terjadi kesalahan server",
       data: null,
     });
   }
+};
+
+// Upload profile image
+exports.uploadProfileImage = async (req, res) => {
+  // Cek apakah file di-upload
+  if (!req.file) {
+    return res.status(400).json({
+      status: 102,
+      message: "Field file tidak boleh kosong",
+      data: null,
+    });
+  }
+
+  // Validasi format file
+  const ext = path.extname(req.file.originalname).toLowerCase();
+  if (ext !== '.png' && ext !== '.jpeg') {
+    return res.status(400).json({
+      status: 102,
+      message: 'Format Image tidak sesuai',
+      data: null,
+    });
+  }
+
+  // Ambil data user dari payload JWT
+  const userEmail = req.userEmail; // Ambil email dari JWT payload
+  const profileImageUrl = `https://yoururlapi.com/${req.file.filename}`; // Ubah ini sesuai dengan URL gambar yang sebenarnya
+
+  // Update URL gambar profil di database
+  const updateQuery = `UPDATE users SET profile_image = ? WHERE email = ?`;
+  await db.query(updateQuery, [profileImageUrl, userEmail]);
+
+  // Merespons dengan informasi profil yang diperbarui
+  return res.status(200).json({
+    status: 0,
+    message: "Update Profile Image berhasil",
+    data: {
+      email: userEmail,
+      profile_image: profileImageUrl,
+    },
+  });
 };
