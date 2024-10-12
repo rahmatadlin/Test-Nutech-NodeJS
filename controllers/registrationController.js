@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const bcrypt = require('bcryptjs');
+const { hashPassword } = require('../helpers/bcrypt');
 
 // User registration
 exports.registration = async (req, res) => {
@@ -71,8 +71,8 @@ exports.registration = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password using helper function
+    const hashedPassword = hashPassword(password);
 
     // Insert new user
     await db.query('INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)', [

@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { swaggerDocs, swaggerUi } = require('./swagger'); // Import Swagger configuration
-const authenticateToken = require('./middlewares/auth'); // Import the authentication middleware
+const authenticateToken = require('./middlewares/authentication.js'); // Import the authentication middleware
 
 // Load environment variables
 dotenv.config();

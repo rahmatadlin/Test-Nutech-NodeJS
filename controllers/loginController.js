@@ -1,6 +1,6 @@
 const db = require("../config/db");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const { comparePassword } = require("../helpers/bcrypt");
+const { createToken } = require("../helpers/jwt");
 
 // User login
 exports.login = async (req, res) => {
@@ -49,7 +49,7 @@ exports.login = async (req, res) => {
     const user = rows[0];
 
     // Check if the entered password is correct
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
         status: 103,
@@ -58,11 +58,8 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Create a JWT token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-      algorithm: 'HS256', // Ensure the algorithm matches
-    });
+    // Create a JWT token using helper function
+    const token = createToken({ id: user.id });
 
     res.status(200).json({
       status: 0,

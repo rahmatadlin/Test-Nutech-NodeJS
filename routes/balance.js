@@ -1,6 +1,6 @@
 const express = require('express');
 const { checkBalance } = require('../controllers/balanceController');
-const auth = require('../middleware/auth');
+const auth = require('../middlewares/authentication.js');
 const router = express.Router();
 
 /**
