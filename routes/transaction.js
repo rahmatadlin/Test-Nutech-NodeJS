@@ -1,42 +1,94 @@
 const express = require('express');
 const { makeTransaction } = require('../controllers/transactionController');
-const auth = require('../middlewares/authentication.js');
 const router = express.Router();
 
 /**
  * @swagger
- * /api/transaction:
+ * /transaction:
  *   post:
- *     summary: Buat transaksi baru
- *     description: Melakukan transaksi seperti pembelian pulsa atau voucher game.
+ *     tags:
+ *       - 3. Module Transaction
+ *     description: Digunakan untuk melakukan top up balance / saldo dari User
  *     security:
  *       - bearerAuth: []
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             required:
- *               - type
- *               - amount
+ *               - service_code
  *             properties:
- *               type:
+ *               service_code:
  *                 type: string
- *                 enum: ['Pulsa', 'Voucher Game']
- *               amount:
- *                 type: number
- *                 format: float
+ *                 enum: ['PULSA', 'VOUCHER_GAME']  # Update to reflect available service codes
  *     responses:
  *       200:
  *         description: Transaksi berhasil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 0
+ *                 message:
+ *                   type: string
+ *                   example: "Transaksi berhasil"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     invoice_number:
+ *                       type: string
+ *                       example: "INV17082023-001"
+ *                     service_code:
+ *                       type: string
+ *                       example: "PULSA"
+ *                     service_name:
+ *                       type: string
+ *                       example: "Pulsa"
+ *                     transaction_type:
+ *                       type: string
+ *                       example: "PAYMENT"
+ *                     total_amount:
+ *                       type: number
+ *                       example: 10000
+ *                     created_on:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2023-08-17T10:10:10.000Z"
  *       400:
- *         description: Data transaksi tidak valid
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 102
+ *                 message:
+ *                   type: string
+ *                   example: "Service atau Layanan tidak ditemukan"
+ *                 data:
+ *                   type: null
  *       401:
- *         description: Tidak terautentikasi
- *       500:
- *         description: Server error
+ *         description: 	Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 108
+ *                 message:
+ *                   type: string
+ *                   example: "Token tidak valid atau kadaluwarsa"
+ *                 data:
+ *                   type: null
  */
-router.post('/', auth, makeTransaction);
+router.post('/', makeTransaction);
 
 module.exports = router;
