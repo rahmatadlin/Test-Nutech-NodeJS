@@ -37,9 +37,13 @@ CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each transaction
     user_id INT NOT NULL,                 -- Foreign key referencing the users table (ID of the user making the transaction)
     service_id INT NOT NULL,              -- Foreign key referencing the services table (ID of the service being transacted)
+    invoice_number VARCHAR(50) NOT NULL,  -- Invoice number for the transaction
     transaction_type ENUM('PAYMENT', 'TOPUP') NOT NULL,  -- Type of transaction, can be either PAYMENT or TOPUP
+    total_amount INT NOT NULL,            -- Total amount for the transaction
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,      -- Timestamp for when the transaction was created
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- Timestamp for when the transaction was last updated
     FOREIGN KEY (user_id) REFERENCES users(id),          -- Foreign key constraint to ensure user_id exists in the users table
     FOREIGN KEY (service_id) REFERENCES services(id)     -- Foreign key constraint to ensure service_id exists in the services table
 );
+
+

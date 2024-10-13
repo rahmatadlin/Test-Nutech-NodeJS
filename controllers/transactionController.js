@@ -50,12 +50,12 @@ const makeTransaction = async (req, res) => {
         // Generate an invoice number (this is just an example, you can implement your own logic)
         const invoiceNumber = `INV${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-        // Insert the transaction into the database
+        // Insert the transaction into the database with total_amount
         const transactionQuery = `
-            INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, created_at, updated_at)
-            VALUES (?, ?, ?, 'PAYMENT', NOW(), NOW())
+            INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
+            VALUES (?, ?, ?, 'PAYMENT', ?, NOW(), NOW())
         `;
-        await pool.query(transactionQuery, [userId, service[0].id, invoiceNumber]);
+        await pool.query(transactionQuery, [userId, service[0].id, invoiceNumber, totalAmount]);
 
         // Deduct the balance from the user
         await deductUserBalance(userId, totalAmount);

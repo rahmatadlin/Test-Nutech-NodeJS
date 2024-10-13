@@ -22,11 +22,11 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // Define routes
 app.use("/", require("./routes/auth"));
 app.use("/profile", authenticateToken, require("./routes/profile"));
-app.use("/banner", require("./routes/banner"));
+app.use("/banner", require("./routes/banner")); // Karena public tidak peru authenticateToken
 app.use("/services", authenticateToken, require("./routes/services")); // Cek semua services yang ada
 app.use("/balance", authenticateToken, require("./routes/balance")); // Cek balance akun user yang telah login dan ada token
 app.use("/topup", authenticateToken, require("./routes/topUp.js")); // Top up balance / saldo dari User
-app.use("/transaction", authenticateToken, require("./routes/transaction"));
+app.use("/transaction", authenticateToken, require("./routes/transaction")); // Post Transaction dan Get Transaction History
 
 // Start server
 const PORT = process.env.PORT || 3000;

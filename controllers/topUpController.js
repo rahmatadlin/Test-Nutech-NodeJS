@@ -38,12 +38,12 @@ exports.topUpBalance = async (req, res) => {
       1000 + Math.random() * 9000
     )}`;
 
-    // Insert the transaction into the database
+    // Insert the transaction into the database with the total_amount column
     const transactionQuery = `
-            INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, created_at, updated_at)
-            VALUES (?, NULL, ?, 'TOPUP', NOW(), NOW())
-        `;
-    await pool.execute(transactionQuery, [userId, invoiceNumber]);
+      INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
+      VALUES (?, NULL, ?, 'TOPUP', ?, NOW(), NOW())
+    `;
+    await pool.execute(transactionQuery, [userId, invoiceNumber, top_up_amount]);
 
     // Mengembalikan respons sukses
     return res.json({
@@ -51,7 +51,6 @@ exports.topUpBalance = async (req, res) => {
       message: "Top Up Balance berhasil",
       data: {
         balance: newBalance,
-        invoice_number: invoiceNumber, // Include invoice number in the response
       },
     });
   } catch (error) {
