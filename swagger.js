@@ -8,7 +8,7 @@ const swaggerOptions = {
     info: {
       title: 'API Documentation',
       version: '1.0.0',
-      description: 'API untuk Registrasi, Login, Cek Saldo, Top Up, dan Transaksi',
+      description: `API untuk Take Home Test Nutech Integrasi\n\n Rahmat Adlin Pasaribu`,
     },
     servers: [
       {
