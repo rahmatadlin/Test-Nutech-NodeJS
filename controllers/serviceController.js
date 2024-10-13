@@ -1,7 +1,7 @@
 const db = require('../config/db'); // Assuming you have a DB connection module
 
 // Controller for fetching services
-const getServices = async (req, res) => {
+const getServices = async (req, res, next) => {
   try {
     // Query to fetch services from the database
     const query = `SELECT service_code, service_name, service_icon, service_tariff FROM Services`;
@@ -15,20 +15,11 @@ const getServices = async (req, res) => {
         data: rows,
       });
     } else {
-      // If no services are found
-      return res.status(200).json({
-        status: 0,
-        message: "Tidak ada layanan yang tersedia",
-        data: [],
-      });
+      // If no services are found, throw a custom error
+      throw { name: "NotFound" }; // Custom error for no services found
     }
   } catch (error) {
-    // Handle any server error
-    return res.status(500).json({
-      status: 500,
-      message: "Internal Server Error",
-      data: null,
-    });
+    next(error); // Pass the error to the error handler
   }
 };
 

@@ -1,7 +1,7 @@
 const pool = require("../config/db"); // Assuming you are using a pool from the database config
 
 // Controller to fetch transaction history
-const getTransactionHistory = async (req, res) => {
+const getTransactionHistory = async (req, res, next) => {
   try {
     const { offset = 0, limit } = req.query;
 
@@ -43,11 +43,7 @@ const getTransactionHistory = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching transaction history:", error);
-    return res.status(500).json({
-      status: 500,
-      message: "Server error",
-      data: null,
-    });
+    next(error); // Pass the error to the error handler
   }
 };
 

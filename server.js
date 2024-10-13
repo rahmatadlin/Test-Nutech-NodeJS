@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const { swaggerDocs, swaggerUi } = require("./swagger"); // Import Swagger configuration
 const authenticateToken = require("./middlewares/authentication.js"); // Import the authentication middleware
-const { handleJsonParsingError } = require("./middlewares/errorHandler"); // Import JSON parsing error handler
+const handleErrors = require("./middlewares/errorHandler"); // Import error handler
 
 // Load environment variables
 dotenv.config();
@@ -13,20 +13,20 @@ const app = express();
 // Middleware for parsing JSON
 app.use(express.json());
 
-// Use JSON parsing error handler middleware
-app.use(handleJsonParsingError);
-
 // Serve Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Define routes
 app.use("/", require("./routes/auth"));
 app.use("/profile", authenticateToken, require("./routes/profile"));
-app.use("/banner", require("./routes/banner")); // Karena public tidak peru authenticateToken
-app.use("/services", authenticateToken, require("./routes/services")); // Cek semua services yang ada
-app.use("/balance", authenticateToken, require("./routes/balance")); // Cek balance akun user yang telah login dan ada token
-app.use("/topup", authenticateToken, require("./routes/topUp.js")); // Top up balance / saldo dari User
-app.use("/transaction", authenticateToken, require("./routes/transaction")); // Post Transaction dan Get Transaction History
+app.use("/banner", require("./routes/banner")); // Because public doesn't require authenticateToken
+app.use("/services", authenticateToken, require("./routes/services")); // Check all available services
+app.use("/balance", authenticateToken, require("./routes/balance")); // Check balance for logged-in user with token
+app.use("/topup", authenticateToken, require("./routes/topUp.js")); // Top up user balance
+app.use("/transaction", authenticateToken, require("./routes/transaction")); // Post Transaction and Get Transaction History
+
+// Use error handler middleware after all routes
+app.use(handleErrors);
 
 // Start server
 const PORT = process.env.PORT || 3000;
