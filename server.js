@@ -13,17 +13,22 @@ const app = express();
 // Middleware for parsing JSON
 app.use(express.json());
 
+// Redirect root to /api-docs
+app.get("/", (req, res) => {
+  res.redirect("/api-docs");
+});
+
 // Serve Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Define routes
-app.use("/", require("./routes/auth"));
+// Define other routes
+app.use("/auth", require("./routes/auth"));
 app.use("/profile", authenticateToken, require("./routes/profile"));
-app.use("/banner", require("./routes/banner")); // Because public doesn't require authenticateToken
-app.use("/services", authenticateToken, require("./routes/services")); // Check all available services
-app.use("/balance", authenticateToken, require("./routes/balance")); // Check balance for logged-in user with token
-app.use("/topup", authenticateToken, require("./routes/topUp.js")); // Top up user balance
-app.use("/transaction", authenticateToken, require("./routes/transaction")); // Post Transaction and Get Transaction History
+app.use("/banner", require("./routes/banner")); // Public route
+app.use("/services", authenticateToken, require("./routes/services"));
+app.use("/balance", authenticateToken, require("./routes/balance"));
+app.use("/topup", authenticateToken, require("./routes/topUp.js"));
+app.use("/transaction", authenticateToken, require("./routes/transaction"));
 
 // Use error handler middleware after all routes
 app.use(handleErrors);
