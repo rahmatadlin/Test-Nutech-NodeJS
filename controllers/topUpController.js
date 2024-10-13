@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const moment = require('moment'); // Untuk memformat tanggal
 
 // Fungsi untuk melakukan top up balance
 exports.topUpBalance = async (req, res) => {
@@ -33,12 +34,21 @@ exports.topUpBalance = async (req, res) => {
       userId,
     ]);
 
-    // Generate an invoice number for the transaction
-    const invoiceNumber = `INV${Date.now()}-${Math.floor(
-      1000 + Math.random() * 9000
-    )}`;
+    // Mendapatkan tanggal hari ini dalam format DDMMYYYY
+    const currentDate = moment().format('DDMMYYYY');
 
-    // Insert the transaction into the database with the total_amount column
+    // Mencari jumlah transaksi user di tanggal yang sama untuk membuat urutan invoice
+    const [transactionCount] = await pool.execute(`
+      SELECT COUNT(*) as count FROM transactions
+      WHERE user_id = ? AND DATE(created_at) = CURDATE()
+    `, [userId]);
+
+    const invoiceOrder = String(transactionCount[0].count + 1).padStart(3, '0'); // Mengubah urutan menjadi 3 digit (001, 002, dst)
+
+    // Generate nomor invoice dalam format INV17082023-001
+    const invoiceNumber = `INV${currentDate}-${invoiceOrder}`;
+
+    // Insert transaksi ke dalam database
     const transactionQuery = `
       INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
       VALUES (?, NULL, ?, 'TOPUP', ?, NOW(), NOW())
