@@ -12,8 +12,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'https://test-nutech-rahmatadlin.up.railway.app', // Tambahkan protokol https
-        description: 'Production server', // Tambahkan deskripsi opsional
+        url: `http://localhost:${process.env.PORT || 3000}`, // Use default port if not set
       },
     ],
     components: {

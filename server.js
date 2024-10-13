@@ -21,14 +21,14 @@ app.get("/", (req, res) => {
 // Serve Swagger documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Define other routes
-app.use("/auth", require("./routes/auth"));
+// Define routes
+app.use("/", require("./routes/auth"));
 app.use("/profile", authenticateToken, require("./routes/profile"));
 app.use("/banner", require("./routes/banner")); // Public route
-app.use("/services", authenticateToken, require("./routes/services"));
-app.use("/balance", authenticateToken, require("./routes/balance"));
-app.use("/topup", authenticateToken, require("./routes/topUp.js"));
-app.use("/transaction", authenticateToken, require("./routes/transaction"));
+app.use("/services", authenticateToken, require("./routes/services")); // Check all available services
+app.use("/balance", authenticateToken, require("./routes/balance")); // Check balance for logged-in user with token
+app.use("/topup", authenticateToken, require("./routes/topUp.js")); // Top up user balance
+app.use("/transaction", authenticateToken, require("./routes/transaction")); // Post Transaction and Get Transaction History
 
 // Use error handler middleware after all routes
 app.use(handleErrors);
