@@ -8,7 +8,6 @@ exports.getProfile = async (req, res, next) => {
 
   try {
     // Log userId for debugging purposes
-    console.log("User ID:", userId);
 
     // Mengambil profil pengguna dari database
     const result = await db.query(
