@@ -16,9 +16,9 @@ const makeTransaction = async (req, res, next) => {
 
     // Fetch the service details based on the service_code
     const serviceQuery = `
-            SELECT id, service_name, service_tariff FROM services WHERE service_code = ?
-        `;
-    const [service] = await pool.query(serviceQuery, [service_code]);
+      SELECT id, service_name, service_tariff FROM services WHERE service_code = $1
+    `;
+    const { rows: service } = await pool.query(serviceQuery, [service_code]);
 
     // Check if the service exists
     if (!service.length) {
@@ -26,7 +26,7 @@ const makeTransaction = async (req, res, next) => {
     }
 
     // Get the total amount for the service
-    const totalAmount = service[0].service_tariff;
+    const totalAmount = Number(service[0].service_tariff); // Ensure totalAmount is a number
 
     // Check user balance
     const userBalance = await getUserBalance(userId);
@@ -41,9 +41,9 @@ const makeTransaction = async (req, res, next) => {
 
     // Insert the transaction into the database
     const transactionQuery = `
-            INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
-            VALUES (?, ?, ?, 'PAYMENT', ?, NOW(), NOW())
-        `;
+      INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
+      VALUES ($1, $2, $3, 'PAYMENT', $4, NOW(), NOW())
+    `;
     await pool.query(transactionQuery, [
       userId,
       service[0].id,
@@ -78,18 +78,18 @@ const makeTransaction = async (req, res, next) => {
 
 // Helper function to get user balance
 const getUserBalance = async (userId) => {
-  const balanceQuery = `SELECT balance FROM users WHERE id = ?`;
-  const [user] = await pool.query(balanceQuery, [userId]);
-  return user.length ? user[0].balance : 0; // Return user's balance or 0 if not found
+  const balanceQuery = `SELECT balance FROM users WHERE id = $1`;
+  const { rows: user } = await pool.query(balanceQuery, [userId]);
+  return user.length ? Number(user[0].balance) : 0; // Return user's balance or 0 if not found
 };
 
 // Helper function to deduct user balance
 const deductUserBalance = async (userId, amount) => {
   const deductQuery = `
-        UPDATE users
-        SET balance = balance - ?
-        WHERE id = ?
-    `;
+    UPDATE users
+    SET balance = balance - $1
+    WHERE id = $2
+  `;
   await pool.query(deductQuery, [amount, userId]);
 };
 

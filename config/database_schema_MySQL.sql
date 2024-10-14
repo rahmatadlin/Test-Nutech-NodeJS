@@ -6,6 +6,7 @@ CREATE TABLE users (
   email VARCHAR(100) NOT NULL UNIQUE,       -- User's email, must be unique and cannot be null
   password VARCHAR(255) NOT NULL,           -- User's password, cannot be null
   balance BIGINT DEFAULT 0,                 -- User's balance, using BIGINT for larger values; defaults to 0
+  profile_image VARCHAR(255),               -- User's profile_image
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp of when the record was created
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP  -- Timestamp for when the record was last updated
 );
@@ -36,7 +37,7 @@ CREATE TABLE services (
 CREATE TABLE transactions (
     id INT AUTO_INCREMENT PRIMARY KEY,  -- Unique identifier for each transaction
     user_id INT NOT NULL,                 -- Foreign key referencing the users table (ID of the user making the transaction)
-    service_id INT NOT NULL,              -- Foreign key referencing the services table (ID of the service being transacted)
+    service_id INT,              -- Foreign key referencing the services table (ID of the service being transacted)
     invoice_number VARCHAR(50) NOT NULL,  -- Invoice number for the transaction
     transaction_type ENUM('PAYMENT', 'TOPUP') NOT NULL,  -- Type of transaction, can be either PAYMENT or TOPUP
     total_amount INT NOT NULL,            -- Total amount for the transaction

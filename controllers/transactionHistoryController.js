@@ -12,24 +12,35 @@ const getTransactionHistory = async (req, res, next) => {
     let query = `
       SELECT 
         transactions.invoice_number, 
-        IF(transactions.service_id IS NULL, 'TOPUP', 'PAYMENT') AS transaction_type,
-        IF(transactions.service_id IS NULL, 'Top Up Balance', services.service_name) AS description,
+        CASE 
+          WHEN transactions.service_id IS NULL THEN 'TOPUP' 
+          ELSE 'PAYMENT' 
+        END AS transaction_type,
+        CASE 
+          WHEN transactions.service_id IS NULL THEN 'Top Up Balance' 
+          ELSE services.service_name 
+        END AS description,
         transactions.total_amount, 
         transactions.created_at AS created_on
       FROM transactions
       LEFT JOIN services ON transactions.service_id = services.id
-      WHERE transactions.user_id = ?
+      WHERE transactions.user_id = $1
       ORDER BY transactions.created_at DESC
     `;
 
     // Append LIMIT and OFFSET if limit is provided
-    const queryParams = [userId, parseInt(offset)];
+    const queryParams = [userId];
     if (limit) {
-      query += ` LIMIT ? OFFSET ?`;
-      queryParams.splice(1, 0, parseInt(limit)); // Insert limit before offset
+      query += ` LIMIT $2 OFFSET $3`;
+      queryParams.push(parseInt(limit), parseInt(offset)); // Insert limit and offset
     }
 
-    const [results] = await pool.query(query, queryParams);
+    const { rows: results } = await pool.query(query, queryParams);
+
+    // If limit is not set, we will get all records
+    const totalCountQuery = `SELECT COUNT(*) AS count FROM transactions WHERE user_id = $1`;
+    const { rows: countResult } = await pool.query(totalCountQuery, [userId]);
+    const totalRecords = countResult[0].count;
 
     // Respond with the formatted transaction history
     return res.status(200).json({
@@ -37,7 +48,7 @@ const getTransactionHistory = async (req, res, next) => {
       message: "Get History Berhasil",
       data: {
         offset: parseInt(offset),
-        limit: limit ? parseInt(limit) : results.length, // Show "All" if no limit is set
+        limit: limit ? parseInt(limit) : totalRecords, // Show totalRecords if limit is not set
         records: results,
       },
     });

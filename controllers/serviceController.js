@@ -5,7 +5,9 @@ const getServices = async (req, res, next) => {
   try {
     // Query to fetch services from the database
     const query = `SELECT service_code, service_name, service_icon, service_tariff FROM Services`;
-    const [rows] = await db.execute(query);
+    
+    // Execute the query using the db.query method
+    const { rows } = await db.query(query);
 
     // If services are found
     if (rows.length > 0) {

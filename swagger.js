@@ -10,14 +10,14 @@ const swaggerOptions = {
       description: `API untuk Take Home Test Nutech Integrasi\n\n Rahmat Adlin Pasaribu`,
     },
     servers: [
-      {
-        url: 'https://test-nutech-rahmatadlin.up.railway.app', // Tambahkan protokol https
-        description: 'Server Development', // Tambahkan deskripsi opsional
-      },
       // {
-      //   url: 'http://localhost:3000', // Uncomment this line for local development
-      //   description: 'Localhost Server', // Local development server
+      //   url: 'https://test-nutech-rahmatadlin.up.railway.app', // Tambahkan protokol https
+      //   description: 'Server Development', // Tambahkan deskripsi opsional
       // },
+      {
+        url: 'http://localhost:3000', // Uncomment this line for local development
+        description: 'Localhost Server', // Local development server
+      },
     ],
     components: {
       securitySchemes: {

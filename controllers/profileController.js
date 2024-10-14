@@ -3,28 +3,36 @@ const db = require("../config/db");
 const path = require("path");
 
 // Get user profile
-exports.getProfile = async (req, res) => {
+exports.getProfile = async (req, res, next) => {
   const userId = req.userId; // Mendapatkan ID pengguna dari middleware
 
-  // Mengambil profil pengguna dari database
-  const [rows] = await db.query(
-    "SELECT email, first_name, last_name, profile_image FROM users WHERE id = ?",
-    [userId]
-  );
+  try {
+    // Log userId for debugging purposes
+    console.log("User ID:", userId);
 
-  // Memeriksa apakah pengguna ada
-  if (rows.length === 0) {
-    throw { name: "NotFound" }; // Throwing custom error
+    // Mengambil profil pengguna dari database
+    const result = await db.query(
+      "SELECT email, first_name, last_name, profile_image FROM users WHERE id = $1",
+      [userId]
+    );
+
+    // Memeriksa apakah pengguna ada
+    if (result.rows.length === 0) {
+      throw { name: "NotFound" }; // Throwing custom error
+    }
+
+    const userProfile = result.rows[0];
+
+    // Mengirim respons dengan data profil pengguna
+    res.status(200).json({
+      status: 0,
+      message: "Sukses",
+      data: userProfile,
+    });
+  } catch (error) {
+    console.error("Error fetching profile:", error); // Log the error for debugging
+    next(error); // Pass the error to the error handler
   }
-
-  const userProfile = rows[0];
-
-  // Mengirim respons dengan data profil pengguna
-  res.status(200).json({
-    status: 0,
-    message: "Sukses",
-    data: userProfile,
-  });
 };
 
 // Update user profile
@@ -44,28 +52,28 @@ exports.updateProfile = async (req, res, next) => {
       throw { name: "EmptyLastName" };
     }
 
-    // First, select the user's email from the database
-    const [userRows] = await db.query("SELECT email FROM users WHERE id = ?", [
-      userId,
-    ]);
+    // First, select the user's existing data from the database
+    const { rows: userRows } = await db.query(
+      "SELECT email, profile_image FROM users WHERE id = $1",
+      [userId]
+    );
 
     if (userRows.length === 0) {
       throw { name: "NotFound" }; // User not found
     }
 
     const email = userRows[0].email; // Get the user's email
+    const profileImage = userRows[0].profile_image; // Get the existing profile image
 
-    // Update data in the database, including profile_image
-    const profileImage = "https://yoururlapi.com/profile.jpeg"; // New profile image URL
-    const updateQuery = `UPDATE users SET first_name = ?, last_name = ?, profile_image = ? WHERE id = ?`;
+    // Update only first_name and last_name in the database
+    const updateQuery = `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3`;
     const result = await db.query(updateQuery, [
       first_name,
       last_name,
-      profileImage,
       userId,
     ]);
 
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       throw { name: "NotFound" }; // User not found
     }
 
@@ -74,7 +82,7 @@ exports.updateProfile = async (req, res, next) => {
       email, // Include email from the database
       first_name,
       last_name,
-      profile_image: profileImage, // Set profile image URL
+      profile_image: profileImage, // Use the existing profile image
     };
 
     // Successful response
@@ -107,11 +115,11 @@ exports.uploadProfileImage = async (req, res, next) => {
     const profileImageUrl = `https://yoururlapi.com/${req.file.filename}`; // Update this based on the actual image URL
 
     // Update profile image URL in the database
-    const updateQuery = `UPDATE users SET profile_image = ? WHERE id = ?`;
+    const updateQuery = `UPDATE users SET profile_image = $1 WHERE id = $2`;
     const result = await db.query(updateQuery, [profileImageUrl, userId]);
 
     // Check if the update was successful
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       throw { name: "NotFound" }; // User not found
     }
 

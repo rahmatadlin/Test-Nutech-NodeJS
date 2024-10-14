@@ -20,8 +20,8 @@ exports.topUpBalance = async (req, res, next) => {
     const userId = req.userId;
 
     // Get current balance of the user
-    const [rows] = await pool.execute(
-      "SELECT balance FROM users WHERE id = ?",
+    const { rows } = await pool.query(
+      "SELECT balance FROM users WHERE id = $1",
       [userId]
     );
 
@@ -31,10 +31,12 @@ exports.topUpBalance = async (req, res, next) => {
     }
 
     const currentBalance = rows[0].balance;
-    const newBalance = currentBalance + top_up_amount;
+
+    // Ensure currentBalance is a number
+    const newBalance = Number(currentBalance) + Number(top_up_amount);
 
     // Update balance in the database
-    await pool.execute("UPDATE users SET balance = ? WHERE id = ?", [
+    await pool.query("UPDATE users SET balance = $1 WHERE id = $2", [
       newBalance,
       userId,
     ]);
@@ -45,9 +47,9 @@ exports.topUpBalance = async (req, res, next) => {
     // Insert transaction into the database
     const transactionQuery = `
       INSERT INTO transactions (user_id, service_id, invoice_number, transaction_type, total_amount, created_at, updated_at)
-      VALUES (?, NULL, ?, 'TOPUP', ?, NOW(), NOW())
+      VALUES ($1, NULL, $2, 'TOPUP', $3, NOW(), NOW())
     `;
-    await pool.execute(transactionQuery, [userId, invoiceNumber, top_up_amount]);
+    await pool.query(transactionQuery, [userId, invoiceNumber, top_up_amount]);
 
     // Return successful response
     return res.json({

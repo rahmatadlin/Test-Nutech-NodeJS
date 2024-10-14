@@ -1,22 +1,20 @@
-// helpers/invoiceHelper.js
-
 const pool = require('../config/db');
 const moment = require('moment');
 
-// Fungsi untuk menghasilkan nomor invoice
+// Function to generate invoice number
 const generateInvoiceNumber = async (userId) => {
-  // Mendapatkan tanggal hari ini dalam format DDMMYYYY
+  // Get today's date in the format DDMMYYYY
   const currentDate = moment().format('DDMMYYYY');
 
-  // Mencari jumlah transaksi user di tanggal yang sama untuk membuat urutan invoice
-  const [transactionCount] = await pool.execute(`
+  // Query to count transactions for the user on the same date
+  const { rows } = await pool.query(`
     SELECT COUNT(*) as count FROM transactions
-    WHERE user_id = ? AND DATE(created_at) = CURDATE()
+    WHERE user_id = $1 AND DATE(created_at) = CURRENT_DATE
   `, [userId]);
 
-  const invoiceOrder = String(transactionCount[0].count + 1).padStart(3, '0'); // Mengubah urutan menjadi 3 digit (001, 002, dst)
+  const invoiceOrder = String(parseInt(rows[0].count, 10) + 1).padStart(3, '0'); // Convert count to number and pad to 3 digits (001, 002, etc.)
 
-  // Generate nomor invoice dalam format INV17082023-001
+  // Generate invoice number in the format INV17082023-001
   return `INV${currentDate}-${invoiceOrder}`;
 };
 
