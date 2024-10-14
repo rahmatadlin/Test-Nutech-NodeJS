@@ -1,4 +1,3 @@
-// swagger.js
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
@@ -15,6 +14,10 @@ const swaggerOptions = {
         url: 'https://test-nutech-rahmatadlin.up.railway.app', // Tambahkan protokol https
         description: 'Server Development', // Tambahkan deskripsi opsional
       },
+      // {
+      //   url: 'http://localhost:3000', // Uncomment this line for local development
+      //   description: 'Localhost Server', // Local development server
+      // },
     ],
     components: {
       securitySchemes: {
